@@ -21,77 +21,32 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.application.cdi;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporter;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporterProvider;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.BaseMetricsTest;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.Meter;
-import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
-import jakarta.inject.Inject;
 
-public class AsyncLongCounterTest extends Arquillian {
+public class AsyncLongCounterTest extends BaseMetricsTest {
 
-    private static final String counterName = "testAsyncLongCounter";
-    private static final String counterDescription = "Testing long counter";
-    private static final String counterUnit = "Metric Tonnes";
-
-    private static final long LONG_VALUE = 12;
-    private static final long LONG_WITH_ATTRIBUTES = 24;
-    private static final long LONG_WITHOUT_ATTRIBUTES = 12;
-
-    @Deployment
-    public static WebArchive createTestArchive() {
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
-                .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
-                        "META-INF/microprofile-config.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
-    @Inject
-    private Meter sdkMeter;
-
-    @Inject
-    private InMemoryMetricExporter metricExporter;
-
-    @BeforeMethod
-    void setUp() {
-        if (metricExporter != null) {
-            metricExporter.reset();
-        }
-    }
+    private static final String COUNTER_NAME = "testAsyncLongCounter";
+    private static final String COUNTER_DESCRIPTION = "Testing long counter";
+    private static final String COUNTER_UNIT = "Metric Tonnes";
 
     @Test
-    void testAsyncLongCounter() throws InterruptedException {
+    void testAsyncLongCounter() {
         Assert.assertNotNull(
                 sdkMeter
-                        .counterBuilder(counterName)
-                        .setDescription(counterDescription)
-                        .setUnit(counterUnit)
+                        .counterBuilder(COUNTER_NAME)
+                        .setDescription(COUNTER_DESCRIPTION)
+                        .setUnit(COUNTER_UNIT)
                         .buildWithCallback(measurement -> {
                             measurement.record(1, Attributes.empty());
                         }));
 
-        MetricData metric = metricExporter.getMetricData((counterName)).get(0);
-
-        Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
+        MetricData metric = assertMetric(COUNTER_NAME, MetricDataType.LONG_SUM, COUNTER_DESCRIPTION, COUNTER_UNIT);
 
         Assert.assertEquals(metric.getLongSumData()
                 .getPoints()

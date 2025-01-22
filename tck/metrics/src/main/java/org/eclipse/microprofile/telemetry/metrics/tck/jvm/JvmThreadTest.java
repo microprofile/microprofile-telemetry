@@ -23,42 +23,16 @@ package org.eclipse.microprofile.telemetry.metrics.tck.jvm;
 
 import java.io.IOException;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.BaseMetricsTest;
 import org.testng.annotations.Test;
 
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
-import jakarta.inject.Inject;
 
-public class JvmThreadTest extends Arquillian {
-
-    @Inject
-    OpenTelemetry openTelemetry;
-
-    @Deployment
-    public static WebArchive createTestArchive() {
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(MetricsReader.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsLibrary(TestLibraries.COMMONS_IO_LIB)
-                .addAsResource(
-                        new StringAsset(
-                                "otel.sdk.disabled=false\notel.metrics.exporter=logging\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
-                        "META-INF/microprofile-config.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
+public class JvmThreadTest extends BaseMetricsTest {
     @Test
     void testThreadCountMetric() throws IOException {
-        MetricsReader.assertLogMessagePattern(
-                "name=jvm\\.thread\\.count, description=Number of executing(.*) threads(.*), unit=\\{thread\\}, type=" +
-                        MetricDataType.LONG_SUM.toString());
+        assertMetric("jvm.thread.count", MetricDataType.LONG_SUM,
+                "Number of executing", "{thread}");
     }
 
 }

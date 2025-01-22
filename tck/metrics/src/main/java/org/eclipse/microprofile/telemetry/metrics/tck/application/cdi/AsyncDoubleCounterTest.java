@@ -21,76 +21,31 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.application.cdi;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporter;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporterProvider;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.BaseMetricsTest;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.Meter;
-import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
-import jakarta.inject.Inject;
 
-public class AsyncDoubleCounterTest extends Arquillian {
-    private static final String counterName = "testDoubleAsyncCounter";
-    private static final String counterDescription = "Testing double counter";
-    private static final String counterUnit = "Metric Tonnes";
-
-    private static final double DOUBLE_WITH_ATTRIBUTES = 20.2;
-    private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10.1;
-
-    @Deployment
-    public static WebArchive createTestArchive() {
-
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
-                .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
-                        "META-INF/microprofile-config.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
-    @Inject
-    private Meter sdkMeter;
-
-    @Inject
-    private InMemoryMetricExporter metricExporter;
-
-    @BeforeMethod
-    void setUp() {
-        if (metricExporter != null) {
-            metricExporter.reset();
-        }
-    }
+public class AsyncDoubleCounterTest extends BaseMetricsTest {
+    private static final String COUNTER_NAME = "testDoubleAsyncCounter";
+    private static final String COUNTER_DESCRIPTION = "Testing double counter";
+    private static final String COUNTER_UNIT = "Metric Tonnes";
 
     @Test
-    void testAsyncDoubleCounter() throws InterruptedException {
+    void testAsyncDoubleCounter() {
         Assert.assertNotNull(
                 sdkMeter
-                        .counterBuilder(counterName)
+                        .counterBuilder(COUNTER_NAME)
                         .ofDoubles()
-                        .setDescription(counterDescription)
-                        .setUnit(counterUnit)
+                        .setDescription(COUNTER_DESCRIPTION)
+                        .setUnit(COUNTER_UNIT)
                         .buildWithCallback(measurement -> {
                             measurement.record(1, Attributes.empty());
                         }));
-        MetricData metric = metricExporter.getMetricData(counterName).get(0);
-
-        Assert.assertEquals(metric.getType(), MetricDataType.DOUBLE_SUM);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
+        MetricData metric = assertMetric(COUNTER_NAME, MetricDataType.DOUBLE_SUM, COUNTER_DESCRIPTION, COUNTER_UNIT);
 
         Assert.assertEquals(metric.getDoubleSumData()
                 .getPoints()

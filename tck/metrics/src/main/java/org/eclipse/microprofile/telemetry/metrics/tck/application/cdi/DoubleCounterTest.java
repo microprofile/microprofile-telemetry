@@ -25,71 +25,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestUtils;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporter;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporterProvider;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.BaseMetricsTest;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleCounter;
-import io.opentelemetry.api.metrics.Meter;
-import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
-import jakarta.inject.Inject;
 
-public class DoubleCounterTest extends Arquillian {
-    private static final String counterName = "testDoubleCounter";
-    private static final String counterDescription = "Testing double counter";
-    private static final String counterUnit = "Metric Tonnes";
+public class DoubleCounterTest extends BaseMetricsTest {
+    private static final String COUNTER_NAME = "testDoubleCounter";
+    private static final String COUNTER_DESCRIPTION = "Testing double counter";
+    private static final String COUNTER_UNIT = "Metric Tonnes";
 
     private static final double DOUBLE_WITH_ATTRIBUTES = 20.2;
     private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10.1;
 
-    @Deployment
-    public static WebArchive createTestArchive() {
-
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class, TestUtils.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
-                .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
-                        "META-INF/microprofile-config.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
-    @Inject
-    private Meter sdkMeter;
-
-    @Inject
-    private InMemoryMetricExporter metricExporter;
-
-    @BeforeMethod
-    void setUp() {
-        if (metricExporter != null) {
-            metricExporter.reset();
-        }
-    }
-
     @Test
-    void testDoubleCounter() throws InterruptedException {
-
+    void testDoubleCounter() {
         DoubleCounter doubleCounter =
                 sdkMeter
-                        .counterBuilder(counterName)
+                        .counterBuilder(COUNTER_NAME)
                         .ofDoubles()
-                        .setDescription(counterDescription)
-                        .setUnit(counterUnit)
+                        .setDescription(COUNTER_DESCRIPTION)
+                        .setUnit(COUNTER_UNIT)
                         .build();
         Assert.assertNotNull(doubleCounter);
 
@@ -99,12 +60,12 @@ public class DoubleCounterTest extends Arquillian {
 
         expectedResults.keySet().stream().forEach(key -> doubleCounter.add(key, expectedResults.get(key)));
 
-        List<MetricData> metrics = metricExporter.getMetricData((counterName));
+        List<MetricData> metrics = metricExporter.getMetricData((COUNTER_NAME));
         metrics.stream()
                 .peek(metricData -> {
                     Assert.assertEquals(metricData.getType(), MetricDataType.DOUBLE_SUM);
-                    Assert.assertEquals(metricData.getDescription(), counterDescription);
-                    Assert.assertEquals(metricData.getUnit(), counterUnit);
+                    Assert.assertEquals(metricData.getDescription(), COUNTER_DESCRIPTION);
+                    Assert.assertEquals(metricData.getUnit(), COUNTER_UNIT);
                 })
                 .flatMap(metricData -> metricData.getDoubleSumData().getPoints().stream())
                 .forEach(point -> {

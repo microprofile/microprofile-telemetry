@@ -34,14 +34,14 @@ import jakarta.inject.Inject;
 
 public class ServerInstanceTest extends Arquillian {
 
-    private static final String serviceNameUnused = "NOT_USED";
+    private static final String SERVICE_NAME_UNUSED = "NOT_USED";
 
     // otel.sdk.disabled=false must be set at runtime level to make this test valid
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addAsResource(new StringAsset(
-                        "otel.service.name=" + serviceNameUnused),
+                        "otel.service.name=" + SERVICE_NAME_UNUSED),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }

@@ -44,7 +44,8 @@ public class JulTest extends Arquillian {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=none\notel.traces.exporter=none\notel.logs.exporter=logging\notel.service.name=openliberty"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=none\notel.traces.exporter=none\n" +
+                                "otel.logs.exporter=logging\notel.service.name=openliberty"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -52,16 +53,16 @@ public class JulTest extends Arquillian {
     @Inject
     private OpenTelemetry openTelemetry;
 
-    private static final Logger julLogger = Logger.getLogger("jul-logger");
+    private static final Logger JUL_LOGGER = Logger.getLogger("jul-logger");
 
-    private static final String logFilePath = System.getProperty("mptelemetry.tck.log.file.path");
+    private static final String LOG_FILE_PATH = System.getProperty("mptelemetry.tck.log.file.path");
 
     private static final String JUL_INFO_MESSAGE = "a very distinguishable info message";
     private static final String JUL_WARN_MESSAGE = "a very distinguishable warning message";
 
     @Test
     void julInfoTest() throws IOException {
-        julLogger.log(Level.INFO, JUL_INFO_MESSAGE);
+        JUL_LOGGER.log(Level.INFO, JUL_INFO_MESSAGE);
         try {
             Assert.assertTrue(checkMessage(".*INFO.*" + JUL_INFO_MESSAGE + ".*scopeInfo:.*"));
         } catch (IOException e) {
@@ -70,7 +71,7 @@ public class JulTest extends Arquillian {
 
     @Test
     void julWarnTest() throws IOException {
-        julLogger.log(Level.WARNING, JUL_WARN_MESSAGE);
+        JUL_LOGGER.log(Level.WARNING, JUL_WARN_MESSAGE);
         try {
             Assert.assertTrue(checkMessage(".*WARN.*" + JUL_WARN_MESSAGE + ".*scopeInfo:.*"));
         } catch (IOException e) {
@@ -81,7 +82,7 @@ public class JulTest extends Arquillian {
         try {
             try {
                 Thread.sleep(5000);
-                BufferedReader reader = new BufferedReader(new FileReader(logFilePath));
+                BufferedReader reader = new BufferedReader(new FileReader(LOG_FILE_PATH));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.matches(logMessage)) {

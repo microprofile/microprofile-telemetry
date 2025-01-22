@@ -25,70 +25,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestUtils;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporter;
-import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporterProvider;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.BaseMetricsTest;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
-import io.opentelemetry.api.metrics.Meter;
-import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
-import jakarta.inject.Inject;
 
-public class DoubleHistogramTest extends Arquillian {
+public class DoubleHistogramTest extends BaseMetricsTest {
 
-    private static final String histogramName = "testDoubleHistogram";
-    private static final String histogramDescription = "Testing double histogram";
-    private static final String histogramUnit = "Metric Tonnes";
+    private static final String HISTOGRAM_NAME = "testDoubleHistogram";
+    private static final String HISTOGRAM_DESCRIPTION = "Testing double histogram";
+    private static final String HISTOGRAM_UNIT = "Metric Tonnes";
 
     private static final double DOUBLE_WITH_ATTRIBUTES = 20;
     private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10;
 
-    @Deployment
-    public static WebArchive createTestArchive() {
-
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class, TestUtils.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
-                .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
-                        "META-INF/microprofile-config.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
-    @Inject
-    private Meter sdkMeter;
-
-    @Inject
-    private InMemoryMetricExporter metricExporter;
-
-    @BeforeMethod
-    void setUp() {
-        if (metricExporter != null) {
-            metricExporter.reset();
-        }
-    }
-
     @Test
-    void testDoubleHistogram() throws InterruptedException {
+    void testDoubleHistogram() {
         DoubleHistogram doubleHistogram =
                 sdkMeter
-                        .histogramBuilder(histogramName)
-                        .setDescription(histogramDescription)
-                        .setUnit(histogramUnit)
+                        .histogramBuilder(HISTOGRAM_NAME)
+                        .setDescription(HISTOGRAM_DESCRIPTION)
+                        .setUnit(HISTOGRAM_UNIT)
                         .build();
         Assert.assertNotNull(doubleHistogram);
 
@@ -98,12 +60,12 @@ public class DoubleHistogramTest extends Arquillian {
 
         expectedResults.keySet().stream().forEach(key -> doubleHistogram.record(key, expectedResults.get(key)));
 
-        List<MetricData> metrics = metricExporter.getMetricData((histogramName));
+        List<MetricData> metrics = metricExporter.getMetricData((HISTOGRAM_NAME));
         metrics.stream()
                 .peek(metricData -> {
                     Assert.assertEquals(metricData.getType(), MetricDataType.HISTOGRAM);
-                    Assert.assertEquals(metricData.getDescription(), histogramDescription);
-                    Assert.assertEquals(metricData.getUnit(), histogramUnit);
+                    Assert.assertEquals(metricData.getDescription(), HISTOGRAM_DESCRIPTION);
+                    Assert.assertEquals(metricData.getUnit(), HISTOGRAM_UNIT);
                 })
                 .flatMap(metricData -> metricData.getHistogramData().getPoints().stream())
                 .forEach(point -> {

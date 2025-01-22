@@ -18,18 +18,17 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.metrics.tck.application.exporter;
+package org.eclipse.microprofile.telemetry.metrics.tck.exporter;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
-
-import org.awaitility.Awaitility;
-import org.testng.Assert;
 
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.metrics.InstrumentType;
@@ -37,6 +36,8 @@ import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.awaitility.Awaitility;
+import org.testng.Assert;
 
 @ApplicationScoped
 public class InMemoryMetricExporter implements MetricExporter {
@@ -55,21 +56,19 @@ public class InMemoryMetricExporter implements MetricExporter {
      * @return a {@code List} of the finished {@code Metric}s.
      */
     public List<MetricData> getFinishedMetricItems() {
-        return finishedMetricItems.stream()
-                .collect(Collectors.toList());
+        return new ArrayList<>(finishedMetricItems);
     }
 
     public List<MetricData> getMetricData(String metricName) {
         assertMetricNameFound(metricName);
         return getFinishedMetricItems().stream().filter(metric -> metric.getName() == metricName)
                 .collect(Collectors.toList());
-        // .orElseThrow(() -> new IllegalStateException("No metric found with type " + dataType));
     }
+
     public void assertMetricNameFound(String metricName) {
         Awaitility.await().pollDelay(5, SECONDS).atMost(10, SECONDS)
                 .untilAsserted(() -> Assert.assertTrue(
-                        getFinishedMetricItems().stream().filter(metric -> metric.getName() == metricName)
-                                .collect(Collectors.toList()).size() > 0));
+                        getFinishedMetricItems().stream().anyMatch(md -> Objects.equals(md.getName(), metricName))));
     }
 
     /**
@@ -111,6 +110,7 @@ public class InMemoryMetricExporter implements MetricExporter {
     public CompletableResultCode flush() {
         return CompletableResultCode.ofSuccess();
     }
+
     /**
      * Clears the internal {@code List} of finished {@code Metric}s.
      *

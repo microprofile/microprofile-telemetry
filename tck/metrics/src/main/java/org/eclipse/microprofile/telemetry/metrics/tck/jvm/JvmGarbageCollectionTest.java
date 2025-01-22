@@ -25,44 +25,19 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.BaseMetricsTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
-import jakarta.inject.Inject;
 
-public class JvmGarbageCollectionTest extends Arquillian {
-
-    @Inject
-    OpenTelemetry openTelemetry;
-
-    @Deployment
-    public static WebArchive createTestArchive() {
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(MetricsReader.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsLibrary(TestLibraries.COMMONS_IO_LIB)
-                .addAsResource(
-                        new StringAsset(
-                                "otel.sdk.disabled=false\notel.metrics.exporter=logging\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
-                        "META-INF/microprofile-config.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
+public class JvmGarbageCollectionTest extends BaseMetricsTest {
     @Test
     void testGarbageCollectionCountMetric() throws IOException {
         waitForGarbageCollection();
 
-        MetricsReader.assertLogMessage("jvm.gc.duration", "Duration of JVM garbage collection actions.", "s",
-                MetricDataType.HISTOGRAM.toString());
+        assertMetric("jvm.gc.duration", MetricDataType.HISTOGRAM,
+                "Duration of JVM garbage collection actions.", "s");
     }
 
     // returns true if the GC was invoked, otherwise false;

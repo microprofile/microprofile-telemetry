@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.metrics.tck.application;
+package org.eclipse.microprofile.telemetry.metrics.tck.shared;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -26,9 +26,6 @@ public class TestLibraries {
 
     public static final JavaArchive AWAITILITY_LIB = ShrinkWrap.create(JavaArchive.class, "awaitility.jar")
             .addPackages(true, "org.awaitility", "org.hamcrest");
-
-    public static final JavaArchive COMMONS_IO_LIB = ShrinkWrap.create(JavaArchive.class, "commons-io.jar")
-            .addPackages(true, "org.apache.commons");
 
     private TestLibraries() {
     }

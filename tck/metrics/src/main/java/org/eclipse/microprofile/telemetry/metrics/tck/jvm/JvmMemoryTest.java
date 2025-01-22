@@ -23,61 +23,35 @@ package org.eclipse.microprofile.telemetry.metrics.tck.jvm;
 
 import java.io.IOException;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.eclipse.microprofile.telemetry.metrics.tck.shared.BaseMetricsTest;
 import org.testng.annotations.Test;
 
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
-import jakarta.inject.Inject;
 
-public class JvmMemoryTest extends Arquillian {
-
-    @Inject
-    OpenTelemetry openTelemetry;
-
-    @Deployment
-    public static WebArchive createTestArchive() {
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(MetricsReader.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsLibrary(TestLibraries.COMMONS_IO_LIB)
-                .addAsResource(
-                        new StringAsset(
-                                "otel.sdk.disabled=false\notel.metrics.exporter=logging\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
-                        "META-INF/microprofile-config.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
+public class JvmMemoryTest extends BaseMetricsTest {
     @Test
     void testJvmMemoryUsedMetric() throws IOException {
-        MetricsReader.assertLogMessage("jvm.memory.used", "Measure of memory used.", "By",
-                MetricDataType.LONG_SUM.toString());
+        assertMetric("jvm.memory.used", MetricDataType.LONG_SUM,
+                "Measure of memory used.", "By");
     }
 
     @Test
     void testJvmMemoryCommittedMetric() throws IOException {
-        MetricsReader.assertLogMessage("jvm.memory.committed", "Measure of memory committed.", "By",
-                MetricDataType.LONG_SUM.toString());
+        assertMetric("jvm.memory.committed", MetricDataType.LONG_SUM,
+                "Measure of memory committed.", "By");
     }
 
     @Test
     void testMemoryLimitMetric() throws IOException {
-        MetricsReader.assertLogMessage("jvm.memory.limit", "Measure of max obtainable memory.", "By",
-                MetricDataType.LONG_SUM.toString());
+        assertMetric("jvm.memory.limit", MetricDataType.LONG_SUM,
+                "Measure of max obtainable memory.", "By");
     }
 
     @Test
     void testMemoryUsedAfterLastGcMetric() throws IOException {
-        MetricsReader.assertLogMessage("jvm.memory.used_after_last_gc",
+        assertMetric("jvm.memory.used_after_last_gc", MetricDataType.LONG_SUM,
                 "Measure of memory used, as measured after the most recent garbage collection event on this pool.",
-                "By",
-                MetricDataType.LONG_SUM.toString());
+                "By");
     }
 
 }

@@ -17,18 +17,21 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.metrics.tck.application;
+package org.eclipse.microprofile.telemetry.metrics.tck.exporter;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import io.opentelemetry.sdk.autoconfigure.spi.ConfigProperties;
+import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
+import io.opentelemetry.sdk.metrics.export.MetricExporter;
+import jakarta.enterprise.inject.spi.CDI;
 
-import io.opentelemetry.api.common.AttributeKey;
+public class InMemoryMetricExporterProvider implements ConfigurableMetricExporterProvider {
+    @Override
+    public MetricExporter createExporter(final ConfigProperties config) {
+        return CDI.current().select(InMemoryMetricExporter.class).get();
+    }
 
-public class TestUtils {
-
-    public static String mapToString(Map<AttributeKey<?>, ?> map) {
-        return (String) map.keySet().stream()
-                .map(key -> "" + key.getKey() + "=" + map.get(key))
-                .collect(Collectors.joining(", ", "{", "}"));
+    @Override
+    public String getName() {
+        return "in-memory";
     }
 }
