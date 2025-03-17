@@ -20,6 +20,8 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.exporter;
 
+import static io.opentelemetry.semconv.HttpAttributes.HTTP_ROUTE;
+import static io.opentelemetry.semconv.UrlAttributes.URL_QUERY;
 import static java.util.Comparator.comparingLong;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.function.Predicate.not;
@@ -36,7 +38,6 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
-import io.opentelemetry.semconv.SemanticAttributes;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -77,9 +78,9 @@ public class InMemorySpanExporter implements SpanExporter {
     }
 
     private static boolean isArquillianSpan(SpanData span) {
-        String path = span.getAttributes().get(SemanticAttributes.HTTP_ROUTE);
+        String path = span.getAttributes().get(HTTP_ROUTE);
         if (path == null) {
-            path = span.getAttributes().get(SemanticAttributes.URL_QUERY);
+            path = span.getAttributes().get(URL_QUERY);
         }
         if (path != null
                 && (path.contains("/ArquillianServletRunner")
