@@ -21,6 +21,24 @@
 == Release Notes
 This section documents the changes introduced by individual releases.
 
+[[release_notes_21]]
+=== Release Notes for MicroProfile Telemetry 2.1
+A full list of changes delivered in the 2.1 release can be found at link:https://github.com/eclipse/microprofile-telemetry/milestone/5?closed=1[MicroProfile Telemetry 2.1 Milestone].
+
+==== Incompatible Changes
+None.
+
+==== API/SPI Changes
+* Consume the latest OTel artifacts (https://github.com/microprofile/microprofile-telemetry/issues/255[255])
+
+** Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.48.0[v1.48.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.39.0[v1.39.0] supported by MicroProfile Telemetry 2.0 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.39.0...v1.48.0[here].
+
+
+
+==== Other Changes
+
+* TCK: Make JVM metrics properly configure themselves (https://github.com/eclipse/microprofile-telemetry/issues/240[240])
+
 [[release_notes_20]]
 === Release Notes for MicroProfile Telemetry 2.0
 A full list of changes delivered in the 2.0 release can be found at link:https://github.com/eclipse/microprofile-telemetry/milestone/2?closed=1[MicroProfile Telemetry 2.0 Milestone].
