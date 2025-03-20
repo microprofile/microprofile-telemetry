@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 Contributors to the Eclipse Foundation
+// Copyright (c) 2022-2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -18,4 +18,141 @@
 //
 
 = MicroProfile Telemetry TCK
-This module contains TCKs for Logs, Metrics and Tracing.
+
+Any MicroProfile Telemetry implementation must pass this test suite.
+The TCK uses `TestNG` and `Arquillian`.
+
+== Foo
+
+=== Hardware Requirements
+All systems should meet the following recommended hardware requirements:
+
+* CPU running at 2.0 GHz or higher
+* 4 GB of RAM or more
+* Network access to the Internet
+
+=== Software Requirements
+You can run this TCK on platforms running the Solaris, Linux, Windows, and Mac OS with the following software installed:
+
+* Maven
+* JDK11+
+
+=== Dependencies
+To enable the tests in your project you need to add the following dependency to your build:
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.eclipse.microprofile.telemetry</groupId>
+    <artifactId>microprofile-telemetry-tck</artifactId>
+    <version>2.1-SNAPSHOT</version>
+    <scope>test</scope>
+</dependency>
+----
+
+To run the all the tests, place this in the `tck-suite.xml`. E.g.
+
+[source, xml]
+----
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+
+<suite name="microprofile-telemetry-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-tests" verbose="10">
+        <packages>
+            <package name="org.eclipse.microprofile.telemetry.*" />
+        </packages>
+    </test>
+</suite>
+----
+
+=== Runtime Initialization Tests
+
+All the tests in the TCK are configured to run correctly out of the box. However, if you need to override any of the configuration properties, you may do so by setting a system property or environment variable (e.g. `otel.metric.export.interval=3000/OTEL_METRIC_EXPORT_INTERVAL=3000`).
+
+=== Logging File Configuration
+Parts of the OpenTelemetry TCK expect information that is sent to stdout in the tests. Ensure logs written to stdout are captured in a file and set the system property `mptelemetry.tck.log.file.path` to the file containing the log output when running the logs TCK. For example:
+
+[source, properties]
+----
+mptelemetry.tck.log.file.path=console.log
+----
+
+=== Configuration in Apache Maven pom.xml
+If you use Apache Maven then the tests are run via the `maven-surefire-plugin`
+
+[source, xml]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.2</version>
+            <configuration>
+                <suiteXmlFiles>
+                    <suiteXmlFile>tck-suite.xml</suiteXmlFile>
+                </suiteXmlFiles>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+----
+
+=== Running as a Scanned Dependency
+You can also run the TCK as a scanned dependency.
+
+==== Surefire Configuration in your pom.xml
+Once you've added the dependency, you don't need a `tck-suite.xml` you can just scan the dependency for tests.
+
+[source, xml]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.2</version>
+            <configuration>
+                <dependenciesToScan>
+                    <dependency>org.eclipse.microprofile.telemetry:microprofile-telemetry-tck</dependency>
+                </dependenciesToScan>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+----
+
+=== Declaring the Tests to run
+There is a group of optional tests. This includes:
+
+* `optional-tests`: `B3` and `Jaeger` progagation formats.
++
+These tests test the B3 and Jaeger propagation formats which are not required. If your implementation does not include support for these propagation formats, you should exclude the `optional-tests` group.
+
+Test groups can be excluded in the TestNG XML file. E.g. create a file `tck-suite.xml` in your project which contains the following content:
+
+[source, xml]
+----
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="microprofile-telemetry-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-tests" verbose="10">
+        <groups>
+            <run>
+                <!-- Exclude B3 and Jaeger propagation tests-->
+                <exclude name="optional-tests"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.eclipse.microprofile.telemetry.*" />
+        </packages>
+    </test>
+</suite>
+----
+
+=== Providing an Executor [[Executor]]
+
+When the optional async tests are running, ensure that the classpath contains the following:
+
+- A class that implements the interface `java.util.concurrent.Executor` in whatever way is most appropriate for your server.
+- A file under META-INF/microprofile-telemetry-tck.properties. This file must contain a line `telemetry.tck.executor=<packagename>.<classname>` referring to the previous class.
