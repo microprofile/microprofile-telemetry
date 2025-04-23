@@ -106,7 +106,7 @@ public class JaegerPropagationTest extends Arquillian {
         SpanData server = spanExporter.getFirst(SpanKind.SERVER);
 
         // assert baggage is propagated
-        Assert.assertEquals(BAGGAGE_VALUE, server.getAttributes().get(BAGGAGE_VALUE_ATTR));
+        Assert.assertEquals(server.getAttributes().get(BAGGAGE_VALUE_ATTR), BAGGAGE_VALUE);
         // Jaeger does not propagate baggage metadata, so we get back the result of
         // BaggageEntryMetadata.empty().getValue() which is an empty string.
         Assert.assertEquals(server.getAttributes().get(BAGGAGE_METADATA_ATTR), "");

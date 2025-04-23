@@ -59,7 +59,7 @@ public class MpRestClientAsyncTestEndpoint {
 
         try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggage.getEntryValue("foo"), "bar");
 
             String baseUrl = uriInfo.getAbsolutePath().toString().replace("/mpclient", "");
             URI baseUri = null;
@@ -75,7 +75,7 @@ public class MpRestClientAsyncTestEndpoint {
                     .build(MpClientTwo.class);
 
             String result = mpClientTwo.requestMpClient(TEST_VALUE);
-            Assert.assertEquals(TEST_PASSED, result);
+            Assert.assertEquals(result, TEST_PASSED);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
     }
@@ -87,7 +87,7 @@ public class MpRestClientAsyncTestEndpoint {
 
         try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggage.getEntryValue("foo"), "bar");
 
             String baseUrl = uriInfo.getAbsolutePath().toString().replace("/mpclientasync", "");
             URI baseUri = null;
@@ -103,7 +103,7 @@ public class MpRestClientAsyncTestEndpoint {
                     .build(MpClientTwoAsync.class);
 
             String result = mpClientTwo.requestMpClient(TEST_VALUE).toCompletableFuture().join();
-            Assert.assertEquals(TEST_PASSED, result);
+            Assert.assertEquals(result, TEST_PASSED);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
     }
@@ -115,7 +115,7 @@ public class MpRestClientAsyncTestEndpoint {
 
         try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggage.getEntryValue("foo"), "bar");
 
             String baseUrl = uriInfo.getAbsolutePath().toString().replace("/mpclientasyncerror", "");
             URI baseUri = null;
@@ -135,7 +135,7 @@ public class MpRestClientAsyncTestEndpoint {
                     .toCompletableFuture()
                     .join();
 
-            assertEquals("Exception:400", result);
+            assertEquals(result, "Exception:400");
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
     }
@@ -164,10 +164,10 @@ public class MpRestClientAsyncTestEndpoint {
     @Path("requestMpClient")
     public Response requestMpClient(@QueryParam("value") String value) {
         Assert.assertNotNull(Span.current());
-        Assert.assertEquals(TEST_VALUE, value);
+        Assert.assertEquals(value, TEST_VALUE);
         Baggage baggage = Baggage.current();
 
-        Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+        Assert.assertEquals(baggage.getEntryValue("foo"), "bar");
 
         return Response.ok(TEST_PASSED).build();
     }
@@ -176,10 +176,10 @@ public class MpRestClientAsyncTestEndpoint {
     @Path("requestMpClientError")
     public Response requestMpClientError(@QueryParam("value") String value) {
         Assert.assertNotNull(Span.current());
-        Assert.assertEquals(TEST_VALUE, value);
+        Assert.assertEquals(value, TEST_VALUE);
         Baggage baggage = Baggage.current();
 
-        Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+        Assert.assertEquals(baggage.getEntryValue("foo"), "bar");
 
         return Response.status(HTTP_BAD_REQUEST).build();
     }

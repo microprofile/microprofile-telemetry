@@ -107,7 +107,7 @@ public class PropagatorSpiTest extends Arquillian {
         exporter.assertSpanCount(2);
 
         SpanData server = exporter.getFirst(SpanKind.SERVER);
-        Assert.assertEquals(TEST_VALUE, server.getAttributes().get(AttributeKey.stringKey(TEST_KEY)));
+        Assert.assertEquals(server.getAttributes().get(AttributeKey.stringKey(TEST_KEY)), TEST_VALUE);
 
         SpanData client = exporter.getFirst(SpanKind.CLIENT);
         // Check that trace context propagation worked by checking that the parent was set correctly
