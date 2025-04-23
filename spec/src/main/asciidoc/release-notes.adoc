@@ -31,7 +31,7 @@ None.
 ==== API/SPI Changes
 * Consume the latest OTel artifacts (https://github.com/microprofile/microprofile-telemetry/issues/255[255])
 
-** Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.48.0[v1.48.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.39.0[v1.39.0] supported by MicroProfile Telemetry 2.0 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.39.0...v1.48.0[here].
+** Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.49.0[v1.49.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.39.0[v1.39.0] supported by MicroProfile Telemetry 2.0 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.39.0...v1.49.0[here].
 
 
 
