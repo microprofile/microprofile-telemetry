@@ -38,6 +38,7 @@ None.
 ==== Other Changes
 
 * TCK: Make JVM metrics properly configure themselves (https://github.com/eclipse/microprofile-telemetry/issues/240[240])
+* TCK: In the TCK parameters to Assert.assertEquals are reversed in some cases (https://github.com/eclipse/microprofile-telemetry/issues/221[221])
 
 [[release_notes_20]]
 === Release Notes for MicroProfile Telemetry 2.0
