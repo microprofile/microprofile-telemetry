@@ -107,8 +107,8 @@ public class W3BaggagePropagationTest extends Arquillian {
         SpanData server = spanExporter.getFirst(SpanKind.SERVER);
 
         // Assert baggage is propagated
-        Assert.assertEquals(BAGGAGE_VALUE, server.getAttributes().get(BAGGAGE_VALUE_ATTR));
-        Assert.assertEquals(BAGGAGE_METADATA, server.getAttributes().get(BAGGAGE_METADATA_ATTR));
+        Assert.assertEquals(server.getAttributes().get(BAGGAGE_VALUE_ATTR), BAGGAGE_VALUE);
+        Assert.assertEquals(server.getAttributes().get(BAGGAGE_METADATA_ATTR), BAGGAGE_METADATA);
 
         // Assert that the expected headers were used
         Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("traceparent"));
