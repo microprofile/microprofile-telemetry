@@ -111,7 +111,9 @@ public class W3BaggagePropagationTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(BAGGAGE_METADATA_ATTR), BAGGAGE_METADATA);
 
         // Assert that the expected headers were used
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("traceparent"));
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("baggage"));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("traceparent")));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("baggage")));
     }
 }

@@ -112,8 +112,11 @@ public class B3MultiPropagationTest extends Arquillian {
         Assert.assertNull(server.getAttributes().get(BAGGAGE_METADATA_ATTR));
 
         // Assert that the expected headers were used
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("X-B3-TraceId"));
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("X-B3-SpanId"));
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("X-B3-Sampled"));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("X-B3-TraceId")));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("X-B3-SpanId")));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("X-B3-Sampled")));
     }
 }

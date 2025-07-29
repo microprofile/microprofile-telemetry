@@ -111,7 +111,8 @@ public class B3PropagationTest extends Arquillian {
 
         // Assert that the expected headers were used
         Assert.assertTrue(
-                server.getAttributes().get(AttributeKey.stringArrayKey("test.propagation.headers")).contains("b3"));
+                server.getAttributes().get(AttributeKey.stringArrayKey("test.propagation.headers")).stream()
+                        .anyMatch(x -> x.equalsIgnoreCase("b3")));
 
     }
 }
