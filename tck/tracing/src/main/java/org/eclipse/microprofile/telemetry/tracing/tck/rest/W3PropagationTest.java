@@ -112,6 +112,7 @@ public class W3PropagationTest extends Arquillian {
         Assert.assertNull(server.getAttributes().get(BAGGAGE_METADATA_ATTR));
 
         // Assert that the expected headers were used
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("traceparent"));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("traceparent")));
     }
 }
