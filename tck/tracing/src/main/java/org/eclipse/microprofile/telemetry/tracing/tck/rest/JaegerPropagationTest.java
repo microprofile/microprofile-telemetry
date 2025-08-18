@@ -112,7 +112,9 @@ public class JaegerPropagationTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(BAGGAGE_METADATA_ATTR), "");
 
         // assert that the expected headers were used
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("uber-trace-id"));
-        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).contains("uberctx-" + BAGGAGE_KEY));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("uber-trace-id")));
+        Assert.assertTrue(server.getAttributes().get(PROPAGATION_HEADERS_ATTR).stream()
+                .anyMatch(x -> x.equalsIgnoreCase("uberctx-" + BAGGAGE_KEY)));
     }
 }
