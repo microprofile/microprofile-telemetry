@@ -43,6 +43,8 @@ Explicit manual instrumentation can be added into a MicroProfile application in 
 Annotating a method in any Jakarta CDI aware beans with the `io.opentelemetry.instrumentation.annotations.WithSpan` annotation.
 This will create a new Span and establish any required relationships with the current Trace context.
 
+Span context MUST also contain <<sec:code-attributes>>.
+
 Method parameters can be annotated with the `io.opentelemetry.instrumentation.annotations.SpanAttribute` annotation to indicate which method parameters SHOULD be part of the Trace.
 
 Example:
@@ -170,6 +172,9 @@ Calling the OpenTelemetry API directly MUST work in the same way and yield the s
 
 [[sec:semantic-conventions]]
 === Trace Semantic Conventions
+
+==== HTTP Attributes
+
 The https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/http/http-spans.md[Semantic Conventions for HTTP Spans]  MUST be followed by any compatible implementation.
 
 NOTE: This is a breaking change from MicroProfile Telemetry 1.1 due to stabilization of HTTP semantic conventions in OpenTelemetry.
@@ -178,6 +183,14 @@ Changes to attributes are described in https://github.com/open-telemetry/semanti
 Semantic Conventions distinguish several https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/general/attribute-requirement-level.md[Requirement Levels] for attributes.
 All Span attributes marked as `Required` and `Conditionally Required` MUST be present in the context of the Span where they are defined.
 Any other attribute is optional.
+
+[[sec:code-conventions]]
+==== Code Attributes
+
+The https://github.com/open-telemetry/semantic-conventions/blob/v1.40.0/docs/registry/attributes/code.md[Semantic Conventions for code attributes] provide context about source code.
+
+The `code.function.name` attribute MUST be present in the context of the Span. Any other `code.*` attribute is optional. 
+
 Implementations MAY also add their own attributes, or provide means of configuring `Opt-In` attribute emission.
 
 ==== MicroProfile Attributes
