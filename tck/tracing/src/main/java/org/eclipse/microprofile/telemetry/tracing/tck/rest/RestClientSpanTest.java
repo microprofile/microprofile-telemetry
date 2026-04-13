@@ -20,22 +20,6 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.rest;
 
-import static io.opentelemetry.semconv.HttpAttributes.HTTP_REQUEST_METHOD;
-import static io.opentelemetry.semconv.HttpAttributes.HTTP_RESPONSE_STATUS_CODE;
-import static io.opentelemetry.semconv.HttpAttributes.HTTP_ROUTE;
-import static io.opentelemetry.semconv.ServerAttributes.SERVER_ADDRESS;
-import static io.opentelemetry.semconv.ServerAttributes.SERVER_PORT;
-import static io.opentelemetry.semconv.UrlAttributes.URL_FULL;
-import static io.opentelemetry.semconv.UrlAttributes.URL_PATH;
-import static io.opentelemetry.semconv.UrlAttributes.URL_QUERY;
-import static io.opentelemetry.semconv.UrlAttributes.URL_SCHEME;
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static jakarta.ws.rs.core.Response.Status.OK;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
-
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -53,6 +37,9 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -66,6 +53,15 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import static io.opentelemetry.semconv.HttpAttributes.HTTP_REQUEST_METHOD;
+import static io.opentelemetry.semconv.HttpAttributes.HTTP_RESPONSE_STATUS_CODE;
+import static io.opentelemetry.semconv.HttpAttributes.HTTP_ROUTE;
+import static io.opentelemetry.semconv.ServerAttributes.SERVER_ADDRESS;
+import static io.opentelemetry.semconv.ServerAttributes.SERVER_PORT;
+import static io.opentelemetry.semconv.UrlAttributes.URL_FULL;
+import static io.opentelemetry.semconv.UrlAttributes.URL_PATH;
+import static io.opentelemetry.semconv.UrlAttributes.URL_QUERY;
+import static io.opentelemetry.semconv.UrlAttributes.URL_SCHEME;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -79,6 +75,9 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.OK;
 
 public class RestClientSpanTest extends Arquillian {
     @Deployment
@@ -238,6 +237,7 @@ public class RestClientSpanTest extends Arquillian {
         SpanData internal = spanExporter.getFirst(SpanKind.INTERNAL);
         assertEquals(internal.getKind(), SpanKind.INTERNAL);
         assertEquals(internal.getName(), "SpanBean.spanChild");
+        assertEquals(internal.getAttributes().get(AttributeKey.stringKey("code.function.name")), "org.eclipse.microprofile.telemetry.tracing.tck.rest.RestClientSpanTest.spanChild");
 
         SpanData server = spanExporter.getFirst(SpanKind.SERVER);
         assertServerSpan(server, "span/child");

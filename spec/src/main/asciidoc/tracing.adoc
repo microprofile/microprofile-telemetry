@@ -43,7 +43,7 @@ Explicit manual instrumentation can be added into a MicroProfile application in 
 Annotating a method in any Jakarta CDI aware beans with the `io.opentelemetry.instrumentation.annotations.WithSpan` annotation.
 This will create a new Span and establish any required relationships with the current Trace context.
 
-Span context MUST also contain <<sec:code-attributes>>.
+Span context MUST also contain the mandatory code attribute `code.function.name` as outlined in the  <<sec:code-attributes>> sec.
 
 Method parameters can be annotated with the `io.opentelemetry.instrumentation.annotations.SpanAttribute` annotation to indicate which method parameters SHOULD be part of the Trace.
 
