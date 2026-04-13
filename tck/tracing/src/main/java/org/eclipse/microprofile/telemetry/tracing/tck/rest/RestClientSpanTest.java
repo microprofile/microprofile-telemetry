@@ -237,7 +237,8 @@ public class RestClientSpanTest extends Arquillian {
         SpanData internal = spanExporter.getFirst(SpanKind.INTERNAL);
         assertEquals(internal.getKind(), SpanKind.INTERNAL);
         assertEquals(internal.getName(), "SpanBean.spanChild");
-        assertEquals(internal.getAttributes().get(AttributeKey.stringKey("code.function.name")), "org.eclipse.microprofile.telemetry.tracing.tck.rest.RestClientSpanTest.spanChild");
+        assertEquals(internal.getAttributes().get(AttributeKey.stringKey("code.function.name")),
+                "org.eclipse.microprofile.telemetry.tracing.tck.rest.RestClientSpanTest.spanChild");
 
         SpanData server = spanExporter.getFirst(SpanKind.SERVER);
         assertServerSpan(server, "span/child");

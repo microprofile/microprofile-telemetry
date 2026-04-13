@@ -187,7 +187,7 @@ Any other attribute is optional.
 [[sec:code-conventions]]
 ==== Code Attributes
 
-The https://github.com/open-telemetry/semantic-conventions/blob/v1.40.0/docs/registry/attributes/code.md[Semantic Conventions for code attributes] provide context about source code.
+The https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/registry/attributes/code.md[Semantic Conventions for code attributes] provide context about source code.
 
 The `code.function.name` attribute MUST be present in the context of the Span. Any other `code.*` attribute is optional. 
 
